@@ -1,0 +1,31 @@
+{
+  "name": "homebot",
+  "version": "1.0.0",
+  "description": "Home automation server by mourraille",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mqtt": "^2.18.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mourraille/homebot.git"
+  },
+  "keywords": [
+    "home",
+    "automation",
+    "bot",
+    "mqtt",
+    "iot"
+  ],
+  "author": "mourraille",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mourraille/homebot/issues"
+  },
+  "homepage": "https://github.com/mourraille/homebot#readme"
+}
