@@ -7,6 +7,7 @@ let temp;
 let stack;
 
 async function verifyNextAction() {
+  try {
   if(stack.length > 0) {
     var currentTime = new Date();
     if((currentTime.getHours() == new Date(stack[stack.length -1 ].time).getHours()) 
@@ -16,6 +17,7 @@ async function verifyNextAction() {
       mqttHandler.constructCmnd(temp,lifo);
     }
   }
+} catch(err){}
 }
 
 function validDay(days, current) {
