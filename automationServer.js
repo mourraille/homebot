@@ -1,11 +1,22 @@
 const fs = require('fs');
 const util = require('util');
-var mqtt = require('mqtt');
-var client  = mqtt.connect('mqtt://192.168.0.105');
+const mqttHandler = require('./mqttHandler');
 
 const readFile = util.promisify(fs.readFile);
-var temp;
-var stack;
+let temp;
+let stack;
+
+async function verifyNextAction() {
+  if(stack.length > 0) {
+    var currentTime = new Date();
+    if((currentTime.getHours() == new Date(stack[stack.length -1 ].time).getHours()) 
+    && (currentTime.getMinutes() == new Date(stack[stack.length -1].time).getMinutes())) {
+      var lifo = stack.pop();
+      console.log("Action performed => "+ lifo.name + ((lifo.state)?" turned ON":" turned OFF"));
+      mqttHandler.constructCmnd(temp,lifo);
+    }
+  }
+}
 
 function validDay(days, current) {
   days.forEach(day => {
@@ -16,9 +27,10 @@ function validDay(days, current) {
 }
 function rebuildStack() 
 {
+  stack = [];
   temp.forEach(element => {
     element.scheduled_activities.forEach(item => {
-      if(item.weekdays == "*" || validDay(item.weekdays.split(",") , new Date().getDay())) {
+      if(item.weekdays === "*" || validDay(item.weekdays.split(",") , new Date().getDay())) {
         var date = new Date().setHours(item.time.split(":")[0],item.time.split(":")[1]);
         date = new Date(date).setSeconds(00);
         var action = {
@@ -26,27 +38,33 @@ function rebuildStack()
         state: true,
         time: date
       }
-      if(action.time >= new Date()) {
-      if(item.hours == "" && item.minutes == "") { //Daily shutdown signal, no Gap => Hours: 0 , Minutes: 00
+   
+      if(item.hours === "" && item.minutes === "") {//Daily shutdown signal, no Gap => Hours: 0 , Minutes: 00
         action.state = false;
+        if(action.time >= new Date()) {
         stack.push(action);
-      } else {                                    //Regular command. Goes on and after the gap , off.
-        stack.push(action);// on action is added to event stack
+        }
+      } else {                                     //Regular command. Goes on and after the gap , off.
+        if(action.time >= new Date()) {
+          stack.push(action);                        // on action is added to event stack
+        }
+        
         var modified_date = new Date (action.time).setMinutes(new Date(action.time).getMinutes() + (parseInt(item.hours) * 60) + parseInt(item.minutes));
         modified_date = new Date(modified_date).setSeconds(00);
-        var action_down = { //state gets set to off and time is modified according to the assigned gap in modified_date
+        var action_down = {                        //state gets set to off and time is modified according to the assigned gap in modified_date
           name: element.name,
           state: false,
           time: modified_date
         }  
-        stack.push(action_down); //off action is added to event stack
-        }
-      } 
+        if(action_down.time >= new Date()) {
+          stack.push(action_down);                  //off action is added to event stack
+        }  
+      }
       } 
     });
   });
   stack = stack.sort(function(a,b) {
-    return (new Date(a.time) > new Date(b.time)) 
+    return (new Date(a.time) < new Date(b.time)) 
   })
 
   for (var i = 0; i < stack.length; i++) {
@@ -81,14 +99,18 @@ async function readConfig()
   }
 }
 
-function verifyNextAction() {
 
-
-}
 function thread() 
 {
-  client.publish("cmnd/fan/POWER","0");
   readConfig();
-}
+  verifyNextAction();
+  var currentTime = new Date();
+
+  if(currentTime.getHours() === 00 && currentTime.getMinutes() === 00 && currentTime.getSeconds() < 2 ) { 
+    console.log("New day, new me. Rebuilding event stack...");
+    rebuildStack();
+    console.log("\n-> Done! 👍");
+  }
+  }
 
 setInterval(thread, 1500);

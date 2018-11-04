@@ -1,10 +1,9 @@
 [
-    {
+    { 
     "name": "Fan",
-    "type": "SWITCH",
-    "on": "on",
-    "off": "off",
+    "type": "FAN",
     "topic": "cmnd/fan/POWER",
+    "threshold" : "25",
     "scheduled_activities" : [
         {
             "time":"00:30",
@@ -15,11 +14,11 @@
     ]},
     {
     "name": "Porche",
-    "on": "on",
-    "off": "off",
+    "type": "SWITCH",
+    "topic": "cmnd/porche/POWER",
     "scheduled_activities" : [  
         {
-        "time":"18:00",
+        "time":"17:45",
         "hours": "2",
         "minutes":"30",
         "weekdays":"*"
@@ -27,11 +26,11 @@
     },
     {
     "name": "Balcon",
-    "on": "on",
-    "off": "off",
+    "type": "SWITCH",
+    "topic": "cmnd/balcon/POWER",
     "scheduled_activities" : [
         {
-            "time":"18:00",
+            "time":"17:45",
             "hours": "2",
             "minutes":"30",
             "weekdays":"*"
