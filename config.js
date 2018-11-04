@@ -18,7 +18,7 @@
     "topic": "cmnd/porche/POWER",
     "scheduled_activities" : [  
         {
-        "time":"17:45",
+        "time":"17:40",
         "hours": "2",
         "minutes":"30",
         "weekdays":"*"
@@ -30,7 +30,7 @@
     "topic": "cmnd/balcon/POWER",
     "scheduled_activities" : [
         {
-            "time":"17:45",
+            "time":"17:40",
             "hours": "2",
             "minutes":"30",
             "weekdays":"*"
