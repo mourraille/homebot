@@ -85,7 +85,8 @@ async function readConfig()
     { 
       stack = [];
       temp = "";
-      console.log("\n\n🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
+      console.log("\n\n" + new Date().toTimeString());
+      console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
       console.log("Installing recipes...");
       temp = elements;
       console.log("-> Done! 👍\n");
@@ -110,6 +111,7 @@ function thread()
 
   if(currentTime.getHours() === 00 && currentTime.getMinutes() === 00 && currentTime.getSeconds() < 2 ) { 
     console.log("New day, new me. Rebuilding event stack...");
+    console.log(new Date());
     rebuildStack();
     console.log("\n-> Done! 👍");
   }
