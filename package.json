@@ -9,7 +9,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node index.js"
+    "start": "node homebot.js"
   },
   "repository": {
     "type": "git",
