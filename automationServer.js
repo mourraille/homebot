@@ -6,6 +6,11 @@ const readFile = util.promisify(fs.readFile);
 let temp;
 let stack;
 
+function popAction(temp, lifo) {
+  console.log("Action performed => "+ lifo.name + ((lifo.state)?" turned ON":" turned OFF"));
+  mqttHandler.constructCmnd(temp,lifo);
+}
+
 async function verifyNextAction() {
   try {
   if(stack.length > 0) {
@@ -13,8 +18,11 @@ async function verifyNextAction() {
     if((currentTime.getHours() == new Date(stack[stack.length -1 ].time).getHours()) 
     && (currentTime.getMinutes() == new Date(stack[stack.length -1].time).getMinutes())) {
       var lifo = stack.pop();
-      console.log("Action performed => "+ lifo.name + ((lifo.state)?" turned ON":" turned OFF"));
-      mqttHandler.constructCmnd(temp,lifo);
+      popAction(temp,lifo);
+      while(lifo.time == stack[stack.length -1 ].time) {
+          lifo = stack.pop();
+          popAction(temp,lifo);
+      }
     }
   }
 } catch(err){}

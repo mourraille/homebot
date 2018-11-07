@@ -2,7 +2,7 @@
   "name": "homebot",
   "version": "1.0.0",
   "description": "Home automation server by mourraille",
-  "main": "index.js",
+  "main": "homebot.js",
   "dependencies": {
     "express": "^4.16.4",
     "mqtt": "^2.18.8"
