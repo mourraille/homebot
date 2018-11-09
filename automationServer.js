@@ -150,8 +150,8 @@ function thread()
   readConfig(0);
   verifyNextAction();
   var currentTime = new Date();
-  if(currentTime.getHours() === 19 && currentTime.getMinutes() === 39 && currentTime.getSeconds() < 1.5 ) {
-    console.log("\n\n--> New day, new me...");
+  if(currentTime.getHours() === 00 && currentTime.getMinutes() === 00 && currentTime.getSeconds() < 1.5 ) {
+    console.log("\n\n ☀️️️ -> New day, new me...");
     console.log(new Date());
     readConfig(true);
   }
