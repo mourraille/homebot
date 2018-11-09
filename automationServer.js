@@ -1,10 +1,15 @@
 const fs = require('fs');
 const util = require('util');
 const mqttHandler = require('./mqttHandler');
+const https = require('https');
+
 
 const readFile = util.promisify(fs.readFile);
+const SUNSET_DELAY = 8;
 let temp;
 let stack;
+let sunset = "17:30";
+
 
 function popAction(temp, lifo) {
   console.log("Action performed => "+ lifo.name + ((lifo.state)?" turned ON":" turned OFF"));
@@ -35,29 +40,35 @@ function validDay(days, current) {
   })
   return false;
 }
-function rebuildStack() 
-{
+function rebuildStack() {
   stack = [];
   temp.forEach(element => {
     element.scheduled_activities.forEach(item => {
       if(item.weekdays === "*" || validDay(item.weekdays.split(",") , new Date().getDay())) {
-        var date = new Date().setHours(item.time.split(":")[0],item.time.split(":")[1]);
+        var date;
+        if (item.time === "SUNSET") {
+          date = sunset;
+          date = new Date().setHours(sunset.split(":")[0],sunset.split(":")[1]);
+          date = new Date(date).setSeconds(00);
+        } else {
+        date = new Date().setHours(item.time.split(":")[0],item.time.split(":")[1]);
         date = new Date(date).setSeconds(00);
+        }
         var action = {
         name: element.name,
         state: true,
         time: date
       }
    
-      if(item.hours === "" && item.minutes === "") {//Daily shutdown signal, no Gap => Hours: 0 , Minutes: 00
+      if(item.hours === "" && item.minutes === "") { //Daily shutdown signal, no Gap => Hours: 0 , Minutes: 00
         action.state = false;
         if(action.time >= new Date()) {
         stack.push(action);
         }
-      } else {                                     //Regular command. Goes on and after the gap , off.
+      } else {                                       //Regular command. Goes on and after the gap , off.
         if(action.time >= new Date()) {
           stack.push(action);                        // on action is added to event stack
-        }
+      }
         
         var modified_date = new Date (action.time).setMinutes(new Date(action.time).getMinutes() + (parseInt(item.hours) * 60) + parseInt(item.minutes));
         modified_date = new Date(modified_date).setSeconds(00);
@@ -69,60 +80,83 @@ function rebuildStack()
         if(action_down.time >= new Date()) {
           stack.push(action_down);                  //off action is added to event stack
         }  
-      }
+       }
       } 
     });
   });
   stack = stack.sort(function(a,b) {
     return (new Date(a.time) < new Date(b.time)) 
   })
-
   for (var i = 0; i < stack.length; i++) {
     console.log(stack[i].name +"\t " +stack[i].state +"\t@ ==> " +new Date(stack[i].time))
   }
 }
 
-async function readConfig() 
+async function readConfig(flag) 
 {
   try 
   {
     const content = await readFile('./config.js', 'utf8');
     var elements = JSON.parse(content);
 
-    if(JSON.stringify(temp) != JSON.stringify(elements)) 
+    if(JSON.stringify(temp) != JSON.stringify(elements) || flag ) 
     { 
-      stack = [];
-      temp = "";
-      console.log("\n\n" + new Date().toTimeString());
-      console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
-      console.log("Installing recipes...");
-      temp = elements;
-      console.log("-> Done! 👍\n");
-      console.log("Rebuilding event stack...");
-      rebuildStack();
-      console.log("\n-> Done! 👍");
-      console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
-    }
-  } 
-  catch (e) 
+      getSunset(elements);
+    } 
+  } catch (e) 
   {
     console.error(e);
   }
 }
 
+ function getSunset(elements) {
+     https.get('https://api.sunrise-sunset.org/json?lat=9.974050&lng=-84.136708&date=today&formatted=0', (resp) => {
+    let data = '';
+  resp.on('data', (chunk) => {
+      data += chunk;
+    });
+    resp.on('end', () => {
+      var tempTime = (new Date(JSON.parse(data).results.sunset).toTimeString().split(":"));
+      sunset = tempTime[0] + ":" + (parseInt(tempTime[1]) + SUNSET_DELAY);
+      constructConfig(elements);
+    });
+  }).on("error", (err) => {
+    console.log("Error: " + err.message);
+    constructConfig(elements);
+  });
+}
+
+
+function constructConfig(elements) {
+  stack = [];
+  temp = "";
+  console.log("\n\nFRANCOSTA 263 - AUTOMATION SERVICE");
+  console.log(new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString());
+  console.log("Today's sunset: " + sunset);
+  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
+  console.log("Installing recipes...");
+  temp = elements;
+  console.log("-> Done! 👍\n");
+  console.log("Rebuilding event stack...");
+  rebuildStack();
+  console.log("\n-> Done! 👍");
+  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
+}
+
+
+
 
 function thread() 
 {
-  readConfig();
+  readConfig(0);
   verifyNextAction();
   var currentTime = new Date();
-
-  if(currentTime.getHours() === 00 && currentTime.getMinutes() === 00 && currentTime.getSeconds() < 2 ) { 
-    console.log("New day, new me. Rebuilding event stack...");
+  if(currentTime.getHours() === 19 && currentTime.getMinutes() === 39 && currentTime.getSeconds() < 1.5 ) {
+    console.log("\n\n--> New day, new me...");
     console.log(new Date());
-    rebuildStack();
-    console.log("\n-> Done! 👍");
+    readConfig(true);
   }
-  }
+}
+
 
 setInterval(thread, 1500);
