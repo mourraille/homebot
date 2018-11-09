@@ -1,3 +1,4 @@
+
 const fs = require('fs');
 const util = require('util');
 const mqttHandler = require('./mqttHandler');
@@ -18,19 +19,19 @@ function popAction(temp, lifo) {
 
 async function verifyNextAction() {
   try {
-  if(stack.length > 0) {
-    var currentTime = new Date();
-    if((currentTime.getHours() == new Date(stack[stack.length -1 ].time).getHours()) 
-    && (currentTime.getMinutes() == new Date(stack[stack.length -1].time).getMinutes())) {
-      var lifo = stack.pop();
-      popAction(temp,lifo);
-      while(lifo.time == stack[stack.length -1 ].time) {
-          lifo = stack.pop();
-          popAction(temp,lifo);
+    if(stack.length > 0) {
+      var currentTime = new Date();
+      if((currentTime.getHours() == new Date(stack[stack.length -1 ].time).getHours()) 
+      && (currentTime.getMinutes() == new Date(stack[stack.length -1].time).getMinutes())) {
+        var lifo = stack.pop();
+        popAction(temp,lifo);
+        while(lifo.time == stack[stack.length -1 ].time) {
+            lifo = stack.pop();
+            popAction(temp,lifo);
+        }
       }
     }
-  }
-} catch(err){}
+  } catch(err){}
 }
 
 function validDay(days, current) {
@@ -40,6 +41,7 @@ function validDay(days, current) {
   })
   return false;
 }
+
 function rebuildStack() {
   stack = [];
   temp.forEach(element => {
@@ -59,7 +61,6 @@ function rebuildStack() {
         state: true,
         time: date
       }
-   
       if(item.hours === "" && item.minutes === "") { //Daily shutdown signal, no Gap => Hours: 0 , Minutes: 00
         action.state = false;
         if(action.time >= new Date()) {
@@ -69,7 +70,6 @@ function rebuildStack() {
         if(action.time >= new Date()) {
           stack.push(action);                        // on action is added to event stack
       }
-        
         var modified_date = new Date (action.time).setMinutes(new Date(action.time).getMinutes() + (parseInt(item.hours) * 60) + parseInt(item.minutes));
         modified_date = new Date(modified_date).setSeconds(00);
         var action_down = {                        //state gets set to off and time is modified according to the assigned gap in modified_date
@@ -98,7 +98,6 @@ async function readConfig(flag)
   {
     const content = await readFile('./config.js', 'utf8');
     var elements = JSON.parse(content);
-
     if(JSON.stringify(temp) != JSON.stringify(elements) || flag ) 
     { 
       getSunset(elements);
@@ -150,12 +149,11 @@ function thread()
   readConfig(0);
   verifyNextAction();
   var currentTime = new Date();
-  if(currentTime.getHours() === 00 && currentTime.getMinutes() === 00 && currentTime.getSeconds() < 1.5 ) {
+  if(currentTime.getHours() === 00 && currentTime.getMinutes() === 00 && currentTime.getSeconds() < 2 ) {
     console.log("\n\n ☀️️️ -> New day, new me...");
     console.log(new Date());
     readConfig(true);
   }
 }
-
 
 setInterval(thread, 1500);
