@@ -130,17 +130,16 @@ async function readConfig(flag)
 function constructConfig(elements) {
   stack = [];
   temp = "";
-  console.log("\n\nFRANCOSTA 263 - AUTOMATION SERVICE");
+  console.log("\n\n\t\t\tFRANCOSTA 263 - HOMEBOT SERVICE");
+  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
   console.log(new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString());
   console.log("Today's sunset: " + sunset);
-  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
-  console.log("Installing recipes...");
+  console.log("\nInstalling recipes...");
   temp = elements;
-  console.log("-> Done! 👍\n");
   console.log("Rebuilding event stack...");
   rebuildStack();
-  console.log("\n-> Done! 👍");
-  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
+  console.log("\n-> All done! 👍");
+  console.log("🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹🔹");
 }
 
 
