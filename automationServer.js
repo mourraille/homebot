@@ -35,10 +35,11 @@ async function verifyNextAction() {
 }
 
 function validDay(days, current) {
-  days.forEach(day => {
-    if (day == current)
-      return true;
-  })
+  for (let i = 0; i < days.length; i++) {
+    if (days[i] == current) {
+        return true;
+      }
+  }
   return false;
 }
 
@@ -46,7 +47,7 @@ function rebuildStack() {
   stack = [];
   temp.forEach(element => {
     element.scheduled_activities.forEach(item => {
-      if(item.weekdays === "*" || validDay(item.weekdays.split(",") , new Date().getDay())) {
+      if( item.weekdays == "*" ||  validDay(item.weekdays.split(","), new Date().getDay()) ) {
         var date;
         if (item.time === "SUNSET") {
           date = sunset;
